@@ -30,23 +30,37 @@ jobs:
       - name: Create Android project
         run: |
           mkdir -p app/src/main/assets
-          mkdir -p app/src/main/java/com/example/htmlgame
+          mkdir -p app/src/main/java/com/example/htmlapk
+          cp index.html app/src/main/assets/index.html
 
-          if [ -f index.html ]; then
-            cp index.html app/src/main/assets/index.html
-          else
-            echo '<html><body><h1>HTML Game</h1><p>Upload your index.html file.</p></body></html>' > app/src/main/assets/index.html
-          fi
-
-          echo "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }" > settings.gradle
-          echo "dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }" >> settings.gradle
-          echo 'rootProject.name = "HTMLGame"' >> settings.gradle
-          echo 'include(":app")' >> settings.gradle
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "HTMLAPK"
+          include ':app'
+          EOF
 
           cat > build.gradle <<'EOF'
           plugins {
-              id 'com.android.application' version '8.7.3' apply false
+              id 'com.android.application' version '8.6.1' apply false
           }
+          EOF
+
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m
+          android.useAndroidX=true
           EOF
 
           cat > app/build.gradle <<'EOF'
@@ -55,11 +69,11 @@ jobs:
           }
 
           android {
-              namespace 'com.example.htmlgame'
+              namespace 'com.example.htmlapk'
               compileSdk 35
 
               defaultConfig {
-                  applicationId 'com.example.htmlgame'
+                  applicationId 'com.example.htmlapk'
                   minSdk 23
                   targetSdk 28
                   versionCode 1
@@ -71,8 +85,9 @@ jobs:
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <application
+                  android:label="HTML APK Studio"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar"
-                  android:label="HTML Game">
+                  android:usesCleartextTraffic="true">
                   <activity
                       android:name=".MainActivity"
                       android:exported="true">
@@ -85,8 +100,8 @@ jobs:
           </manifest>
           EOF
 
-          cat > app/src/main/java/com/example/htmlgame/MainActivity.java <<'EOF'
-          package com.example.htmlgame;
+          cat > app/src/main/java/com/example/htmlapk/MainActivity.java <<'EOF'
+          package com.example.htmlapk;
 
           import android.app.Activity;
           import android.os.Bundle;
@@ -95,24 +110,27 @@ jobs:
 
           public class MainActivity extends Activity {
               @Override
-              public void onCreate(Bundle state) {
-                  super.onCreate(state);
-                  WebView web = new WebView(this);
-                  WebSettings settings = web.getSettings();
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  WebView webView = new WebView(this);
+                  WebSettings settings = webView.getSettings();
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
-                  setContentView(web);
-                  web.loadUrl("file:///android_asset/index.html");
+                  webView.setWebViewClient(new android.webkit.WebViewClient());
+                  setContentView(webView);
+                  webView.loadUrl("file:///android_asset/index.html");
               }
           }
           EOF
 
       - name: Build APK
         run: |
-          gradle --no-daemon assembleDebug
+          gradle --version
+          gradle assembleDebug --no-daemon
 
       - name: Save APK
         uses: actions/upload-artifact@v4
         with:
-          name: HTML-Game-APK
+          name: HTML-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
