@@ -103,8 +103,8 @@ jobs:
                   applicationId "com.htmlapk.studio"
                   minSdk 23
                   targetSdk 28
-                  versionCode 1
-                  versionName "1.0"
+                  versionCode 2
+                  versionName "1.1"
               }
           }
           EOF
@@ -112,17 +112,23 @@ jobs:
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
+
               <application
                   android:theme="@android:style/Theme.Material.Light.NoActionBar"
                   android:label="HTML APK Studio"
-                  android:usesCleartextTraffic="true">
+                  android:usesCleartextTraffic="true"
+                  android:hardwareAccelerated="true">
+
                   <activity
                       android:name=".MainActivity"
+                      android:configChanges="orientation|screenSize|keyboardHidden"
                       android:exported="true">
+
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
+
                   </activity>
               </application>
           </manifest>
@@ -132,22 +138,116 @@ jobs:
           package com.htmlapk.studio;
 
           import android.app.Activity;
+          import android.content.Intent;
+          import android.net.Uri;
           import android.os.Bundle;
-          import android.webkit.WebView;
+          import android.webkit.ValueCallback;
+          import android.webkit.WebChromeClient;
           import android.webkit.WebSettings;
+          import android.webkit.WebView;
           import android.webkit.WebViewClient;
 
           public class MainActivity extends Activity {
+
+              private static final int FILE_CHOOSER_REQUEST = 1001;
+              private ValueCallback<Uri[]> filePathCallback;
+              private WebView webView;
+
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
-                  WebView webView = new WebView(this);
+
+                  webView = new WebView(this);
+
                   WebSettings settings = webView.getSettings();
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
+                  settings.setJavaScriptCanOpenWindowsAutomatically(false);
+
                   webView.setWebViewClient(new WebViewClient());
+
+                  webView.setWebChromeClient(new WebChromeClient() {
+                      @Override
+                      public boolean onShowFileChooser(
+                              WebView view,
+                              ValueCallback<Uri[]> callback,
+                              FileChooserParams params) {
+
+                          if (filePathCallback != null) {
+                              filePathCallback.onReceiveValue(null);
+                          }
+
+                          filePathCallback = callback;
+
+                          try {
+                              Intent intent = params.createIntent();
+                              startActivityForResult(
+                                  intent,
+                                  FILE_CHOOSER_REQUEST
+                              );
+                          } catch (Exception e) {
+                              filePathCallback = null;
+                              return false;
+                          }
+
+                          return true;
+                      }
+                  });
+
                   setContentView(webView);
                   webView.loadUrl("file:///android_asset/index.html");
+              }
+
+              @Override
+              protected void onActivityResult(
+                      int requestCode,
+                      int resultCode,
+                      Intent data) {
+
+                  super.onActivityResult(requestCode, resultCode, data);
+
+                  if (requestCode == FILE_CHOOSER_REQUEST) {
+                      if (filePathCallback == null) return;
+
+                      Uri[] results = null;
+
+                      if (resultCode == RESULT_OK && data != null) {
+                          Uri uri = data.getData();
+
+                          if (uri != null) {
+                              results = new Uri[]{uri};
+                          }
+                      }
+
+                      filePathCallback.onReceiveValue(results);
+                      filePathCallback = null;
+                  }
+              }
+
+              @Override
+              public void onBackPressed() {
+                  if (webView != null && webView.canGoBack()) {
+                      webView.goBack();
+                  } else {
+                      super.onBackPressed();
+                  }
+              }
+
+              @Override
+              protected void onDestroy() {
+                  if (filePathCallback != null) {
+                      filePathCallback.onReceiveValue(null);
+                      filePathCallback = null;
+                  }
+
+                  if (webView != null) {
+                      webView.destroy();
+                      webView = null;
+                  }
+
+                  super.onDestroy();
               }
           }
           EOF
@@ -163,7 +263,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: HTML-APK-Studio
+          name: HTML-APK-Studio-fixed
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
