@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Get source code
@@ -27,10 +27,16 @@ jobs:
       - name: Install Android tools
         uses: android-actions/setup-android@v3
 
+      - name: Install SDK packages
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
       - name: Create Android project
         run: |
           mkdir -p app/src/main/assets
-          mkdir -p app/src/main/java/com/example/htmlapk
+          mkdir -p app/src/main/java/com/htmlapk/studio
+
           cp index.html app/src/main/assets/index.html
 
           cat > settings.gradle <<'EOF'
@@ -48,7 +54,7 @@ jobs:
                   mavenCentral()
               }
           }
-          rootProject.name = "HTMLAPK"
+          rootProject.name = "HTMLAPKStudio"
           include ':app'
           EOF
 
@@ -69,11 +75,11 @@ jobs:
           }
 
           android {
-              namespace 'com.example.htmlapk'
+              namespace 'com.htmlapk.studio'
               compileSdk 35
 
               defaultConfig {
-                  applicationId 'com.example.htmlapk'
+                  applicationId 'com.htmlapk.studio'
                   minSdk 23
                   targetSdk 28
                   versionCode 1
@@ -85,8 +91,8 @@ jobs:
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <application
-                  android:label="HTML APK Studio"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar"
+                  android:label="HTML APK Studio"
                   android:usesCleartextTraffic="true">
                   <activity
                       android:name=".MainActivity"
@@ -100,8 +106,8 @@ jobs:
           </manifest>
           EOF
 
-          cat > app/src/main/java/com/example/htmlapk/MainActivity.java <<'EOF'
-          package com.example.htmlapk;
+          cat > app/src/main/java/com/htmlapk/studio/MainActivity.java <<'EOF'
+          package com.htmlapk.studio;
 
           import android.app.Activity;
           import android.os.Bundle;
@@ -110,13 +116,14 @@ jobs:
 
           public class MainActivity extends Activity {
               @Override
-              public void onCreate(Bundle savedInstanceState) {
+              protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
+
                   WebView webView = new WebView(this);
                   WebSettings settings = webView.getSettings();
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
-                  webView.setWebViewClient(new android.webkit.WebViewClient());
+
                   setContentView(webView);
                   webView.loadUrl("file:///android_asset/index.html");
               }
@@ -125,12 +132,15 @@ jobs:
 
       - name: Build APK
         run: |
-          gradle --version
-          gradle assembleDebug --no-daemon
+          gradle --version || true
+          mkdir -p gradle/wrapper
+          curl -fsSL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+          /tmp/gradle-8.7/bin/gradle --no-daemon assembleDebug
 
       - name: Save APK
         uses: actions/upload-artifact@v4
         with:
-          name: HTML-APK
+          name: HTML-APK-Studio
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
