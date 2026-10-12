@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'index.html'
-      - '.github/workflows/build-apk.yml'
+      - "index.html"
+      - ".github/workflows/build-apk.yml"
 
 permissions:
   contents: read
@@ -13,27 +13,34 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
 
     steps:
-      - name: Get source code
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
-      - name: Install Android tools
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK packages
+      - name: Install Android SDK packages
+        shell: bash
         run: |
+          set -e
           yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Create Android project
+        shell: bash
         run: |
+          set -e
+          test -f index.html
+
           mkdir -p app/src/main/assets
           mkdir -p app/src/main/java/com/htmlapk/studio
 
@@ -55,41 +62,42 @@ jobs:
               }
           }
           rootProject.name = "HTMLAPKStudio"
-          include ':app'
+          include(":app")
           EOF
 
           cat > build.gradle <<'EOF'
           plugins {
-              id 'com.android.application' version '8.6.1' apply false
+              id "com.android.application" version "8.6.1" apply false
           }
           EOF
 
           cat > gradle.properties <<'EOF'
-          org.gradle.jvmargs=-Xmx2048m
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=true
           EOF
 
           cat > app/build.gradle <<'EOF'
           plugins {
-              id 'com.android.application'
+              id "com.android.application"
           }
 
           android {
-              namespace 'com.htmlapk.studio'
+              namespace "com.htmlapk.studio"
               compileSdk 35
 
               defaultConfig {
-                  applicationId 'com.htmlapk.studio'
+                  applicationId "com.htmlapk.studio"
                   minSdk 23
                   targetSdk 28
                   versionCode 1
-                  versionName '1.0'
+                  versionName "1.0"
               }
           }
           EOF
 
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
               <application
                   android:theme="@android:style/Theme.Material.Light.NoActionBar"
                   android:label="HTML APK Studio"
@@ -98,8 +106,8 @@ jobs:
                       android:name=".MainActivity"
                       android:exported="true">
                       <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
                   </activity>
               </application>
@@ -113,6 +121,7 @@ jobs:
           import android.os.Bundle;
           import android.webkit.WebView;
           import android.webkit.WebSettings;
+          import android.webkit.WebViewClient;
 
           public class MainActivity extends Activity {
               @Override
@@ -121,22 +130,25 @@ jobs:
 
                   WebView webView = new WebView(this);
                   WebSettings settings = webView.getSettings();
+
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
 
+                  webView.setWebViewClient(new WebViewClient());
                   setContentView(webView);
+
                   webView.loadUrl("file:///android_asset/index.html");
               }
           }
           EOF
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
       - name: Build APK
-        run: |
-          gradle --version || true
-          mkdir -p gradle/wrapper
-          curl -fsSL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /tmp
-          /tmp/gradle-8.7/bin/gradle --no-daemon assembleDebug
+        run: gradle --no-daemon assembleDebug
 
       - name: Save APK
         uses: actions/upload-artifact@v4
@@ -144,3 +156,4 @@ jobs:
           name: HTML-APK-Studio
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          retention-days: 7
