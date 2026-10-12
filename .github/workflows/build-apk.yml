@@ -1,891 +1,273 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="theme-color" content="#080d18">
-<title>HTML APK Studio</title>
-
-<style>
-:root{
---bg:#080d18;
---panel:#111a2b;
---border:#26344c;
---text:#f3f6ff;
---muted:#91a0b9;
---blue:#6385ff;
---cyan:#35d5e8;
---green:#35d69a
-}
-
-*{box-sizing:border-box}
-
-body{
-margin:0;
-background:var(--bg);
-color:var(--text);
-font-family:Tahoma,Arial,sans-serif;
-font-size:14px
-}
-
-button,input,select{font:inherit}
-button{cursor:pointer;touch-action:manipulation}
-
-.app{max-width:1000px;margin:auto;padding:14px}
-
-header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:12px;
-padding:12px 0 20px;
-border-bottom:1px solid var(--border)
-}
-
-.logo{
-display:flex;
-align-items:center;
-gap:10px;
-font-size:18px;
-font-weight:bold
-}
-
-.logo-icon{
-width:42px;
-height:42px;
-border-radius:13px;
-display:grid;
-place-items:center;
-font-size:24px;
-background:linear-gradient(135deg,#6586ff,#9b63ff)
-}
-
-.badge{
-border:1px solid var(--border);
-padding:7px 9px;
-border-radius:10px;
-color:var(--green);
-font-size:11px
-}
-
-.hero{padding:24px 0 18px}
-.hero h1{font-size:25px;line-height:1.7;margin:0 0 7px}
-.hero h1 span{color:var(--cyan)}
-.hero p{color:var(--muted);line-height:2;margin:0}
-
-.stats{
-display:grid;
-grid-template-columns:repeat(3,minmax(0,1fr));
-gap:9px;
-margin:16px 0
-}
-
-.stat,.card{
-background:var(--panel);
-border:1px solid var(--border);
-border-radius:16px;
-padding:14px;
-min-width:0
-}
-
-.stat-icon{font-size:21px}
-.stat strong{
-display:block;
-font-size:15px;
-margin:10px 0 6px;
-overflow-wrap:anywhere
-}
-.stat small{color:var(--muted);font-size:11px}
-
-.layout{
-display:grid;
-grid-template-columns:repeat(2,minmax(0,1fr));
-gap:14px
-}
-
-.card{margin-bottom:14px}
-.card h2{font-size:16px;margin:0 0 15px}
-
-label{
-display:block;
-color:#cbd5e8;
-margin:14px 0 7px
-}
-
-input,select{
-width:100%;
-padding:12px;
-border:1px solid var(--border);
-border-radius:10px;
-background:#0a1220;
-color:var(--text);
-outline:none;
-min-height:44px
-}
-
-input:focus,select:focus{border-color:var(--blue)}
-input[type=file]{font-size:12px;padding:8px}
-
-.help{
-font-size:11px;
-color:var(--muted);
-line-height:1.9;
-margin:7px 0
-}
-
-.row{
-display:grid;
-grid-template-columns:repeat(2,minmax(0,1fr));
-gap:10px;
-align-items:center
-}
-
-.primary,.secondary{
-border:0;
-border-radius:11px;
-padding:12px 14px;
-font-weight:bold;
-min-height:44px
-}
-
-.primary{
-background:linear-gradient(110deg,#5378ff,#875eff);
-color:#fff;
-width:100%;
-margin-top:15px
-}
-
-.secondary{
-background:#1a2941;
-color:#dbe6ff;
-border:1px solid var(--border)
-}
-
-button:disabled{opacity:.6;cursor:wait}
-button:active{transform:scale(.99)}
-
-.drop{
-border:1px dashed #536b99;
-border-radius:14px;
-padding:16px 12px;
-text-align:center;
-background:#0b1424
-}
-
-.drop .big{font-size:30px}
-.drop p{color:var(--muted);line-height:1.8;margin:8px 0}
-
-.preview{
-width:60px;
-height:60px;
-border-radius:16px;
-background:linear-gradient(135deg,#6486ff,#a15dff);
-display:grid;
-place-items:center;
-font-size:28px;
-overflow:hidden
-}
-
-.preview img{width:100%;height:100%;object-fit:cover}
-
-.status{
-display:none;
-margin-top:12px;
-padding:12px;
-border-radius:10px;
-background:#0b2630;
-color:#91f0d0;
-line-height:1.9;
-overflow-wrap:anywhere
-}
-
-.status.error{background:#351b24;color:#ffb5c2}
-
-.project{
-display:flex;
-align-items:center;
-gap:10px;
-padding:11px 0;
-border-bottom:1px solid var(--border)
-}
-
-.project:last-child{border-bottom:0}
-
-.project-icon{
-width:40px;
-height:40px;
-border-radius:11px;
-background:#1d2b47;
-display:grid;
-place-items:center;
-font-size:20px;
-flex-shrink:0
-}
-
-.project-info{flex:1;min-width:0}
-.project-info strong{display:block;margin-bottom:5px;overflow-wrap:anywhere}
-.project-info small{color:var(--muted);overflow-wrap:anywhere}
-
-footer{
-text-align:center;
-color:var(--muted);
-padding:20px 5px;
-line-height:2
-}
-
-footer b{color:#c8d5ff}
-
-@media(max-width:650px){
-.app{padding:12px}
-.layout{grid-template-columns:1fr}
-.hero h1{font-size:22px}
-.stats{gap:7px}
-.stat{padding:10px 8px}
-.stat strong{font-size:13px}
-.stat small{font-size:10px}
-.badge{font-size:10px}
-}
-</style>
-</head>
-
-<body>
-<div class="app">
-
-<header>
-  <div class="logo">
-    <div class="logo-icon">⚡</div>
-    <div>HTML APK <span style="color:#8ca4ff">STUDIO</span></div>
-  </div>
-  <div class="badge">نسخه اصلاح‌شده</div>
-</header>
-
-<section class="hero">
-  <h1>استودیوی <span>HTML به APK</span></h1>
-  <p>فایل HTML و عکس لوگو را از گوشی انتخاب کن و برنامه اندرویدی بساز.</p>
-</section>
-
-<section class="stats">
-  <div class="stat">
-    <div class="stat-icon">📁</div>
-    <strong id="projectCount">۰</strong>
-    <small>پروژه‌های ذخیره‌شده</small>
-  </div>
-
-  <div class="stat">
-    <div class="stat-icon">📄</div>
-    <strong id="fileState">انتخاب نشده</strong>
-    <small>فایل HTML</small>
-  </div>
-
-  <div class="stat">
-    <div class="stat-icon">📦</div>
-    <strong id="buildState">آماده</strong>
-    <small>وضعیت پروژه</small>
-  </div>
-</section>
-
-<div class="layout">
-
-<section class="card">
-  <h2>📂 فایل پروژه</h2>
-
-  <div class="drop">
-    <div class="big">🌐</div>
-    <strong>فایل HTML را انتخاب کن</strong>
-    <p>فایل اصلی با پسوند html یا htm</p>
-    <input type="file" id="htmlFile" accept=".html,.htm,text/html">
-  </div>
-
-  <div id="htmlDetails" class="help">هنوز فایلی انتخاب نشده است.</div>
-
-  <label for="projectName">نام پروژه</label>
-  <input id="projectName" value="برنامه HTML من" maxlength="60">
-
-  <label for="iconFile">انتخاب عکس لوگو از گالری گوشی</label>
-
-  <div class="row">
-    <div class="preview" id="iconPreview">⚡</div>
-    <input type="file" id="iconFile" accept="image/*">
-  </div>
-
-  <p class="help">
-    عکس انتخابی به آیکون برنامه تبدیل می‌شود.
-    فرمت PNG، JPG یا WEBP؛ حداکثر ۵ مگابایت.
-  </p>
-
-  <button class="primary" id="saveProject" type="button">
-    ＋ ذخیره پروژه
-  </button>
-
-  <div class="status" id="saveStatus" role="status"></div>
-</section>
-
-<section class="card">
-  <h2>⚙️ تنظیمات برنامه</h2>
-
-  <label for="appName">نام نمایشی برنامه</label>
-  <input id="appName" value="برنامه HTML من" maxlength="50">
-
-  <label for="packageId">شناسه بسته (Package ID)</label>
-  <input
-    id="packageId"
-    value="com.example.myhtmlapp"
-    placeholder="com.example.myapp"
-    dir="ltr"
-    autocapitalize="none"
-  >
-
-  <p class="help">
-    نمونه معتبر: com.example.myapp
-  </p>
-
-  <div class="row">
-    <div>
-      <label for="version">نسخه</label>
-      <input id="version" value="1.0.0" dir="ltr">
-    </div>
-
-    <div>
-      <label for="androidVersion">حداقل اندروید</label>
-      <select id="androidVersion">
-        <option value="23">Android 6</option>
-        <option value="26">Android 8</option>
-        <option value="28">Android 9</option>
-        <option value="30">Android 11</option>
-      </select>
-    </div>
-  </div>
-
-  <label for="screenMode">حالت نمایش</label>
-  <select id="screenMode">
-    <option value="portrait">عمودی</option>
-    <option value="landscape">افقی</option>
-    <option value="unspecified">خودکار</option>
-  </select>
-
-  <label for="internet">دسترسی اینترنت</label>
-  <select id="internet">
-    <option value="yes">فعال</option>
-    <option value="no">غیرفعال</option>
-  </select>
-
-  <button class="secondary" id="saveSettings" type="button" style="width:100%;margin-top:15px">
-    ذخیره تنظیمات
-  </button>
-
-  <div class="status" id="settingsStatus" role="status"></div>
-</section>
-
-</div>
-
-<section class="card">
-  <h2>🚀 ساخت خروجی</h2>
-
-  <p class="help">
-    این دکمه فایل HTML و لوگو را به سرویس ساخت می‌فرستد.
-    ابتدا باید سرور راه‌اندازی و آدرس آن در کد تنظیم شود.
-  </p>
-
-  <button class="primary" id="buildButton" type="button">
-    📦 ساخت و دانلود APK
-  </button>
-
-  <button class="secondary" id="downloadHtml" type="button" style="width:100%;margin-top:10px">
-    ⬇️ دانلود فایل HTML انتخاب‌شده
-  </button>
-
-  <div class="status" id="buildStatus" role="status"></div>
-</section>
-
-<section class="card">
-  <h2>🗂️ پروژه‌های ذخیره‌شده</h2>
-
-  <div id="projectList">
-    <p class="help">هنوز پروژه‌ای ذخیره نشده است.</p>
-  </div>
-
-  <button class="secondary" id="clearProjects" type="button" style="width:100%;margin-top:12px">
-    پاک کردن فهرست پروژه‌ها
-  </button>
-</section>
-
-<footer>
-  <b>HTML APK STUDIO</b><br>
-  مدیریت و آماده‌سازی پروژه‌های HTML برای اندروید
-</footer>
-
-</div>
-
-<script>
-(() => {
-"use strict";
-
-const $ = id => document.getElementById(id);
-
-let selectedHTML = null;
-let selectedIcon = null;
-let projects = [];
-
-function showMessage(id, text, error = false) {
-  const el = $(id);
-  el.textContent = text;
-  el.classList.toggle("error", error);
-  el.style.display = "block";
-}
-
-function hideMessage(id) {
-  $(id).style.display = "none";
-  $(id).textContent = "";
-}
-
-function validPackage(value) {
-  return /^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$/.test(value);
-}
-
-function getSettings() {
-  return {
-    projectName: $("projectName").value.trim(),
-    appName: $("appName").value.trim(),
-    packageId: $("packageId").value.trim(),
-    version: $("version").value.trim(),
-    minSdk: $("androidVersion").value,
-    screenMode: $("screenMode").value,
-    internet: $("internet").value
-  };
-}
-
-function saveSettingsToStorage() {
-  try {
-    localStorage.setItem(
-      "htmlApkStudioSettings",
-      JSON.stringify(getSettings())
-    );
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-function loadSettings() {
-  try {
-    const s = JSON.parse(
-      localStorage.getItem("htmlApkStudioSettings") || "null"
-    );
-
-    if (!s) return;
-
-    if (s.projectName) $("projectName").value = s.projectName;
-    if (s.appName) $("appName").value = s.appName;
-    if (s.packageId) $("packageId").value = s.packageId;
-    if (s.version) $("version").value = s.version;
-    if (s.minSdk) $("androidVersion").value = String(s.minSdk);
-    if (s.screenMode) $("screenMode").value = s.screenMode;
-    if (s.internet) $("internet").value = s.internet;
-  } catch (_) {}
-}
-
-function updateCounts() {
-  $("projectCount").textContent = String(projects.length);
-}
-
-function renderProjects() {
-  const list = $("projectList");
-  list.replaceChildren();
-
-  if (!projects.length) {
-    const p = document.createElement("p");
-    p.className = "help";
-    p.textContent = "هنوز پروژه‌ای ذخیره نشده است.";
-    list.appendChild(p);
-  } else {
-    projects.forEach((project, index) => {
-      const row = document.createElement("div");
-      row.className = "project";
-
-      const ico = document.createElement("div");
-      ico.className = "project-icon";
-      ico.textContent = "🌐";
-
-      const info = document.createElement("div");
-      info.className = "project-info";
-
-      const title = document.createElement("strong");
-      title.textContent = project.name;
-
-      const detail = document.createElement("small");
-      detail.textContent =
-        project.file + " · " +
-        (project.size / 1024).toFixed(1) + " KB";
-
-      info.append(title, detail);
-
-      const remove = document.createElement("button");
-      remove.className = "secondary";
-      remove.type = "button";
-      remove.textContent = "حذف";
-
-      remove.addEventListener("click", () => {
-        projects.splice(index, 1);
-        persistProjects();
-        renderProjects();
-      });
-
-      row.append(ico, info, remove);
-      list.appendChild(row);
-    });
-  }
-
-  updateCounts();
-}
-
-function persistProjects() {
-  try {
-    localStorage.setItem(
-      "htmlApkStudioProjects",
-      JSON.stringify(projects)
-    );
-  } catch (_) {
-    showMessage(
-      "saveStatus",
-      "فضای ذخیره‌سازی پر است.",
-      true
-    );
-  }
-}
-
-function loadProjects() {
-  try {
-    const stored = JSON.parse(
-      localStorage.getItem("htmlApkStudioProjects") || "[]"
-    );
-
-    if (Array.isArray(stored)) projects = stored;
-  } catch (_) {
-    projects = [];
-  }
-
-  renderProjects();
-}
-
-/* انتخاب فایل HTML */
-
-$("htmlFile").addEventListener("change", event => {
-  const file = event.target.files && event.target.files[0];
-  if (!file) return;
-
-  if (!/\.(html?|HTML?)$/.test(file.name) &&
-      file.type !== "text/html") {
-    event.target.value = "";
-    showMessage("saveStatus", "لطفاً فایل HTML انتخاب کن.", true);
-    return;
-  }
-
-  if (file.size > 10 * 1024 * 1024) {
-    event.target.value = "";
-    showMessage("saveStatus", "حجم فایل باید کمتر از ۱۰ مگابایت باشد.", true);
-    return;
-  }
-
-  selectedHTML = file;
-
-  $("fileState").textContent = "انتخاب شد";
-
-  $("htmlDetails").textContent =
-    file.name + " · " + (file.size / 1024).toFixed(1) + " کیلوبایت";
-
-  hideMessage("saveStatus");
-});
-
-/* انتخاب لوگو از گالری */
-
-$("iconFile").addEventListener("change", event => {
-  const file = event.target.files && event.target.files[0];
-  if (!file) return;
-
-  if (!file.type.startsWith("image/")) {
-    event.target.value = "";
-    showMessage("saveStatus", "لطفاً یک عکس انتخاب کن.", true);
-    return;
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    event.target.value = "";
-    showMessage("saveStatus", "حجم لوگو باید حداکثر ۵ مگابایت باشد.", true);
-    return;
-  }
-
-  selectedIcon = file;
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    const img = document.createElement("img");
-    img.alt = "پیش‌نمایش لوگو";
-    img.src = reader.result;
-    $("iconPreview").replaceChildren(img);
-
-    showMessage(
-      "saveStatus",
-      "لوگو انتخاب شد: " + file.name
-    );
-  };
-
-  reader.onerror = () => {
-    showMessage("saveStatus", "خواندن عکس انجام نشد.", true);
-  };
-
-  reader.readAsDataURL(file);
-});
-
-/* هماهنگ کردن نام پروژه و نام برنامه */
-
-$("projectName").addEventListener("input", () => {
-  if (!$("appName").dataset.changed) {
-    $("appName").value = $("projectName").value;
-  }
-});
-
-$("appName").addEventListener("input", () => {
-  $("appName").dataset.changed = "1";
-});
-
-/* ذخیره پروژه */
-
-$("saveProject").addEventListener("click", () => {
-  hideMessage("saveStatus");
-
-  const name = $("projectName").value.trim();
-
-  if (!name) {
-    return showMessage("saveStatus", "نام پروژه را وارد کن.", true);
-  }
-
-  if (!selectedHTML) {
-    return showMessage("saveStatus", "ابتدا فایل HTML را انتخاب کن.", true);
-  }
-
-  projects.unshift({
-    name,
-    file: selectedHTML.name,
-    size: selectedHTML.size,
-    appName: $("appName").value.trim(),
-    packageId: $("packageId").value.trim(),
-    savedAt: new Date().toISOString()
-  });
-
-  persistProjects();
-  renderProjects();
-
-  showMessage("saveStatus", "پروژه ذخیره شد.");
-});
-
-/* ذخیره تنظیمات */
-
-$("saveSettings").addEventListener("click", () => {
-  hideMessage("settingsStatus");
-
-  const pkg = $("packageId").value.trim();
-  const version = $("version").value.trim();
-
-  if (!$("appName").value.trim()) {
-    return showMessage("settingsStatus", "نام برنامه را وارد کن.", true);
-  }
-
-  if (!validPackage(pkg)) {
-    return showMessage(
-      "settingsStatus",
-      "شناسه بسته معتبر نیست؛ نمونه: com.example.myapp",
-      true
-    );
-  }
-
-  if (!/^\d+\.\d+\.\d+$/.test(version)) {
-    return showMessage(
-      "settingsStatus",
-      "نسخه را مثل 1.0.0 وارد کن.",
-      true
-    );
-  }
-
-  const ok = saveSettingsToStorage();
-
-  showMessage(
-    "settingsStatus",
-    ok ? "تنظیمات ذخیره شد." : "ذخیره‌سازی در دسترس نیست.",
-    !ok
-  );
-});
-
-/*
-  پس از راه‌اندازی سرور، این آدرس را عوض کن.
-  نمونه:
-  https://your-service.onrender.com/build
-*/
-
-const BUILD_SERVICE_URL =
-  "https://YOUR-SERVICE.onrender.com/build";
-
-/* ساخت و دانلود APK */
-
-$("buildButton").addEventListener("click", async () => {
-  hideMessage("buildStatus");
-
-  if (!selectedHTML) {
-    return showMessage("buildStatus", "ابتدا فایل HTML را انتخاب کن.", true);
-  }
-
-  const pkg = $("packageId").value.trim();
-  const appName = $("appName").value.trim();
-  const version = $("version").value.trim();
-
-  if (!appName) {
-    return showMessage("buildStatus", "نام برنامه را وارد کن.", true);
-  }
-
-  if (!validPackage(pkg)) {
-    return showMessage(
-      "buildStatus",
-      "شناسه بسته معتبر نیست؛ نمونه: com.example.myapp",
-      true
-    );
-  }
-
-  if (!/^\d+\.\d+\.\d+$/.test(version)) {
-    return showMessage(
-      "buildStatus",
-      "نسخه را مثل 1.0.0 وارد کن.",
-      true
-    );
-  }
-
-  if (BUILD_SERVICE_URL.includes("YOUR-SERVICE")) {
-    return showMessage(
-      "buildStatus",
-      "سرویس ساخت هنوز راه‌اندازی نشده است. ابتدا سرور را راه‌اندازی کن و آدرس واقعی را در BUILD_SERVICE_URL قرار بده.",
-      true
-    );
-  }
-
-  const form = new FormData();
-
-  form.append("html", selectedHTML, selectedHTML.name);
-  form.append("app_name", appName);
-  form.append("package_id", pkg);
-  form.append("version", version);
-  form.append("min_sdk", $("androidVersion").value);
-  form.append("screen_mode", $("screenMode").value);
-  form.append("internet", $("internet").value);
-
-  if (selectedIcon) {
-    form.append("logo", selectedIcon, selectedIcon.name);
-  }
-
-  const button = $("buildButton");
-  button.disabled = true;
-  button.textContent = "⏳ در حال ساخت APK...";
-  $("buildState").textContent = "در حال ساخت";
-
-  showMessage(
-    "buildStatus",
-    "درخواست ارسال شد. ساخت APK ممکن است چند دقیقه طول بکشد."
-  );
-
-  try {
-    const response = await fetch(BUILD_SERVICE_URL, {
-      method: "POST",
-      body: form
-    });
-
-    if (!response.ok) {
-      let message = "ساخت APK ناموفق بود.";
-
-      try {
-        const data = await response.json();
-        if (data.detail) message = String(data.detail);
-      } catch (_) {}
-
-      throw new Error(message);
-    }
-
-    const blob = await response.blob();
-
-    if (!blob.size) {
-      throw new Error("فایل APK خالی برگشت.");
-    }
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-
-    a.href = url;
-    a.download = "html-app-debug.apk";
-
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
-
-    $("buildState").textContent = "APK آماده شد";
-
-    showMessage(
-      "buildStatus",
-      "ساخت تمام شد؛ دانلود APK شروع شد."
-    );
-
-  } catch (error) {
-    $("buildState").textContent = "خطا در ساخت";
-
-    showMessage(
-      "buildStatus",
-      "خطا: " + (error.message || "ارتباط با سرور برقرار نشد."),
-      true
-    );
-
-  } finally {
-    button.disabled = false;
-    button.textContent = "📦 ساخت و دانلود APK";
-  }
-});
-
-/* دانلود HTML انتخاب‌شده */
-
-$("downloadHtml").addEventListener("click", () => {
-  if (!selectedHTML) {
-    return showMessage("buildStatus", "ابتدا فایل HTML را انتخاب کن.", true);
-  }
-
-  const url = URL.createObjectURL(selectedHTML);
-  const a = document.createElement("a");
-
-  a.href = url;
-  a.download = selectedHTML.name;
-
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-
-  showMessage("buildStatus", "دانلود فایل HTML شروع شد.");
-});
-
-/* پاک کردن پروژه‌های ذخیره‌شده */
-
-$("clearProjects").addEventListener("click", () => {
-  if (!confirm("فهرست پروژه‌های ذخیره‌شده پاک شود؟")) return;
-
-  projects = [];
-
-  persistProjects();
-  renderProjects();
-
-  showMessage("saveStatus", "فهرست پروژه‌ها پاک شد.");
-});
-
-loadSettings();
-loadProjects();
-
-})();
-</script>
-</body>
-</html>
+name: Build HTML APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Check HTML file
+        shell: bash
+        run: |
+          if [ ! -f index.html ]; then
+            echo "ERROR: index.html not found in repository root."
+            exit 1
+          fi
+
+      - name: Create Android project
+        shell: bash
+        run: |
+          mkdir -p app/src/main/assets
+          mkdir -p app/src/main/java/com/example/htmlapk
+          mkdir -p app/src/main/res/values
+
+          cp index.html app/src/main/assets/index.html
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+
+          rootProject.name = "HTMLAPK"
+          include(":app")
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.6.1' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.example.htmlapk'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId 'com.example.htmlapk'
+                  minSdk 23
+                  targetSdk 28
+                  versionCode 1
+                  versionName '1.0'
+              }
+          }
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:colorAccent">#6385ff</item>
+                  <item name="android:statusBarColor">#080d18</item>
+                  <item name="android:navigationBarColor">#080d18</item>
+                  <item name="android:windowLightStatusBar">false</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+              <uses-permission android:name="android.permission.INTERNET" />
+
+              <application
+                  android:allowBackup="true"
+                  android:label="HTML APK Studio"
+                  android:theme="@style/AppTheme"
+                  android:usesCleartextTraffic="false">
+
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:configChanges="orientation|screenSize|keyboardHidden">
+
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+
+                  </activity>
+
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/com/example/htmlapk/MainActivity.java <<'EOF'
+          package com.example.htmlapk;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.content.Intent;
+          import android.net.Uri;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.webkit.ValueCallback;
+          import android.webkit.WebSettings;
+          import android.webkit.PermissionRequest;
+          import android.widget.Toast;
+
+          public class MainActivity extends Activity {
+
+              private WebView webView;
+              private ValueCallback<Uri[]> fileCallback;
+              private static final int FILE_REQUEST = 1001;
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  webView = new WebView(this);
+                  setContentView(webView);
+
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
+
+                  webView.setWebViewClient(new WebViewClient());
+
+                  webView.setWebChromeClient(new WebChromeClient() {
+
+                      @Override
+                      public boolean onShowFileChooser(
+                              WebView view,
+                              ValueCallback<Uri[]> callback,
+                              FileChooserParams params) {
+
+                          if (fileCallback != null) {
+                              fileCallback.onReceiveValue(null);
+                          }
+
+                          fileCallback = callback;
+
+                          Intent intent = params.createIntent();
+
+                          try {
+                              startActivityForResult(intent, FILE_REQUEST);
+                          } catch (Exception e) {
+                              fileCallback = null;
+                              Toast.makeText(
+                                  MainActivity.this,
+                                  "باز کردن انتخاب‌گر فایل ممکن نیست",
+                                  Toast.LENGTH_LONG
+                              ).show();
+                              return false;
+                          }
+
+                          return true;
+                      }
+
+                      @Override
+                      public void onPermissionRequest(PermissionRequest request) {
+                          request.deny();
+                      }
+                  });
+
+                  webView.loadUrl("file:///android_asset/index.html");
+              }
+
+              @Override
+              protected void onActivityResult(
+                      int requestCode,
+                      int resultCode,
+                      Intent data) {
+
+                  super.onActivityResult(requestCode, resultCode, data);
+
+                  if (requestCode == FILE_REQUEST) {
+                      if (fileCallback == null) return;
+
+                      Uri[] results = null;
+
+                      if (resultCode == Activity.RESULT_OK && data != null) {
+                          Uri uri = data.getData();
+
+                          if (uri != null) {
+                              results = new Uri[] { uri };
+                          } else {
+                              results = WebChromeClient.FileChooserParams
+                                  .parseResult(resultCode, data);
+                          }
+                      }
+
+                      fileCallback.onReceiveValue(results);
+                      fileCallback = null;
+                  }
+              }
+
+              @Override
+              public void onBackPressed() {
+                  if (webView != null && webView.canGoBack()) {
+                      webView.goBack();
+                  } else {
+                      super.onBackPressed();
+                  }
+              }
+
+              @Override
+              protected void onDestroy() {
+                  if (fileCallback != null) {
+                      fileCallback.onReceiveValue(null);
+                      fileCallback = null;
+                  }
+
+                  if (webView != null) {
+                      webView.destroy();
+                  }
+
+                  super.onDestroy();
+              }
+          }
+          EOF
+
+      - name: Build debug APK
+        run: gradle --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTML-APK-Studio
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
