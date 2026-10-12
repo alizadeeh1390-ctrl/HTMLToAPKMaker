@@ -25,26 +25,39 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: "12266719"
+      - name: Locate Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${ANDROID_HOME:-}" ]; then
+            if [ -d /usr/local/lib/android/sdk ]; then
+              echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
+              echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
+            else
+              echo "Android SDK not found" >&2
+              exit 1
+            fi
+          fi
 
       - name: Install Android SDK packages
+        shell: bash
         run: |
-          set -e
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$SDK/cmdline-tools" -type f -name sdkmanager 2>/dev/null | sort | tail -n 1)"
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --sdk_root="$SDK" --licenses || true
+          "$SDKMANAGER" --sdk_root="$SDK" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Check HTML file
-        run: |
-          test -f index.html
+        run: test -f index.html
 
       - name: Create Android project
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p app/src/main/assets
           mkdir -p app/src/main/java/com/htmlapk/studio
-
           cp index.html app/src/main/assets/index.html
 
           cat > settings.gradle <<'EOF'
@@ -55,7 +68,6 @@ jobs:
                   gradlePluginPortal()
               }
           }
-
           dependencyResolutionManagement {
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
               repositories {
@@ -63,7 +75,6 @@ jobs:
                   mavenCentral()
               }
           }
-
           rootProject.name = "HTMLAPKStudio"
           include(":app")
           EOF
@@ -101,21 +112,17 @@ jobs:
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
-
               <application
                   android:theme="@android:style/Theme.Material.Light.NoActionBar"
                   android:label="HTML APK Studio"
                   android:usesCleartextTraffic="true">
-
                   <activity
                       android:name=".MainActivity"
                       android:exported="true">
-
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
-
                   </activity>
               </application>
           </manifest>
@@ -134,19 +141,13 @@ jobs:
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
-
                   WebView webView = new WebView(this);
                   WebSettings settings = webView.getSettings();
-
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
-
                   webView.setWebViewClient(new WebViewClient());
                   setContentView(webView);
-
-                  webView.loadUrl(
-                      "file:///android_asset/index.html"
-                  );
+                  webView.loadUrl("file:///android_asset/index.html");
               }
           }
           EOF
