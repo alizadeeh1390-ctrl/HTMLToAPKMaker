@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d18">
+<title>HTML APK Studio</title>
+
+<style>
+*{box-sizing:border-box}
+:root{
+--bg:#080d18;
+--panel:#111a2b;
+--border:#26344c;
+--text:#f3f6ff;
+--muted:#91a0b9;
+--blue:#6385ff;
+--cyan:#35d5e8;
+--green:#35d69a;
+}
+body{
+margin:0;background:var(--bg);color:var(--text);
+font-family:Tahoma,Arial,sans-serif;font-size:14px;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1100px;margin:auto;padding:18px}
+header{
+display:flex;align-items:center;justify-content:space-between;
+gap:12px;padding:12px 0 22px;border-bottom:1px solid var(--border);
+}
+.logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:bold}
+.logo-icon{
+width:43px;height:43px;border-radius:14px;
+display:grid;place-items:center;font-size:24px;
+background:linear-gradient(135deg,#6586ff,#9b63ff);
+}
+.badge{
+border:1px solid var(--border);padding:8px 10px;
+border-radius:10px;color:var(--green);font-size:11px;
+}
+.hero{padding:30px 0 24px}
+.hero h1{font-size:27px;line-height:1.7;margin:0 0 8px}
+.hero h1 span{color:var(--cyan)}
+.hero p{color:var(--muted);line-height:2;margin:0}
+.stats{
+display:grid;grid-template-columns:repeat(3,1fr);
+gap:12px;margin:20px 0;
+}
+.stat,.card{
+background:var(--panel);border:1px solid var(--border);
+border-radius:17px;padding:17px;
+}
+.stat-icon{font-size:22px}
+.stat strong{display:block;font-size:19px;margin:13px 0 7px}
+.stat small{color:var(--muted)}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{margin-bottom:16px;min-width:0}
+.card h2{font-size:16px;margin:0 0 19px}
+label{display:block;color:#cbd5e8;margin:15px 0 8px}
+input,select{
+width:100%;padding:13px;border:1px solid var(--border);
+border-radius:10px;background:#0a1220;color:var(--text);
+outline:none;
+}
+input:focus,select:focus{border-color:var(--blue)}
+input[type=file]{font-size:12px}
+.help{font-size:11px;color:var(--muted);line-height:1.9;margin-top:7px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.primary,.secondary{
+border:0;border-radius:11px;padding:13px 15px;font-weight:bold;
+}
+.primary{
+background:linear-gradient(110deg,#5378ff,#875eff);
+color:white;width:100%;margin-top:18px;
+}
+.secondary{
+background:#1a2941;color:#dbe6ff;border:1px solid var(--border);
+}
+.primary:active,.secondary:active{transform:scale(.99)}
+.drop{
+border:1px dashed #536b99;border-radius:14px;
+padding:23px 12px;text-align:center;background:#0b1424;
+}
+.drop .big{font-size:35px}
+.drop p{color:var(--muted);line-height:1.8}
+.drop input{border:0;padding:5px}
+.preview{
+width:64px;height:64px;border-radius:18px;
+background:linear-gradient(135deg,#6486ff,#a15dff);
+display:grid;place-items:center;font-size:30px;overflow:hidden;
+}
+.preview img{width:100%;height:100%;object-fit:cover}
+.project{
+display:flex;align-items:center;gap:12px;
+padding:12px 0;border-bottom:1px solid var(--border);
+}
+.project:last-child{border-bottom:0}
+.project-icon{
+width:42px;height:42px;border-radius:12px;
+background:#1d2b47;display:grid;place-items:center;font-size:21px;
+}
+.project-info{flex:1;min-width:0}
+.project-info strong{display:block;margin-bottom:7px;overflow-wrap:anywhere}
+.project-info small{color:var(--muted)}
+.tag{color:var(--green);font-size:11px}
+.status{
+display:none;margin-top:15px;padding:13px;
+border-radius:10px;background:#0b2630;
+color:#91f0d0;line-height:2;
+}
+footer{text-align:center;color:var(--muted);padding:24px 5px;line-height:2}
+footer b{color:#c8d5ff}
+@media(max-width:600px){
+.app{padding:13px}
+.layout{grid-template-columns:1fr}
+.stats{gap:8px}
+.stat{padding:12px 9px}
+.stat strong{font-size:16px}
+.hero h1{font-size:23px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>HTML APK <span style="color:#8ca4ff">STUDIO</span></div>
+  </div>
+  <div class="badge">● نسخه اولیه</div>
+</header>
+
+<section class="hero">
+  <h1>استودیوی حرفه‌ای <span>HTML به APK</span></h1>
+  <p>
+    پروژه HTML خودت رو مدیریت کن، مشخصات اپلیکیشن رو تنظیم کن
+    و برای ساخت نسخه اندروید آماده شو.
+  </p>
+</section>
+
+<section class="stats">
+  <div class="stat">
+    <div class="stat-icon">📁</div>
+    <strong id="projectCount">۰</strong>
+    <small>پروژه‌های ثبت‌شده</small>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">📄</div>
+    <strong id="fileState">انتخاب نشده</strong>
+    <small>وضعیت فایل HTML</small>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">📦</div>
+    <strong id="buildState">آماده‌سازی</strong>
+    <small>وضعیت ساخت APK</small>
+  </div>
+</section>
+
+<div class="layout">
+
+<section class="card">
+<h2>📂 فایل پروژه</h2>
+
+<div class="drop">
+  <div class="big">🌐</div>
+  <strong>فایل HTML خودت رو انتخاب کن</strong>
+  <p>فایل اصلی پروژه با پسوند html</p>
+  <input type="file" id="htmlFile" accept=".html,.htm">
+</div>
+
+<label>نام پروژه</label>
+<input id="projectName" value="My HTML App" maxlength="60"
+placeholder="نام پروژه">
+
+<label>انتخاب آیکون برنامه</label>
+<div class="row" style="align-items:center">
+  <div class="preview" id="iconPreview">⚡</div>
+  <input type="file" id="iconFile" accept="image/png,image/jpeg,image/webp">
+</div>
+<p class="help">آیکون انتخابی فعلاً پیش‌نمایش می‌شود؛ برای استفاده در APK باید در فرایند ساخت نیز قرار بگیرد.</p>
+
+<button class="primary" id="saveProject">＋ ثبت پروژه</button>
+<div class="status" id="saveStatus"></div>
+</section>
+
+<section class="card">
+<h2>⚙️ تنظیمات اپلیکیشن</h2>
+
+<label>نام نمایشی برنامه</label>
+<input id="appName" value="My HTML App" maxlength="50">
+
+<label>شناسه بسته (Package ID)</label>
+<input id="packageId" value="com.example.myhtmlapp"
+placeholder="com.example.myapp" dir="ltr">
+<p class="help">فقط حروف انگلیسی کوچک، عدد و نقطه؛ هر بخش باید با حرف شروع شود.</p>
+
+<div class="row">
+<div>
+<label>نسخه</label>
+<input id="version" value="1.0.0" dir="ltr">
+</div>
+<div>
+<label>حداقل نسخه اندروید</label>
+<select id="androidVersion">
+<option value="23">Android 6.0</option>
+<option value="26">Android 8.0</option>
+<option value="28">Android 9.0</option>
+<option value="30">Android 11</option>
+</select>
+</div>
+</div>
+
+<label>حالت نمایش</label>
+<select id="screenMode">
+<option value="portrait">عمودی</option>
+<option value="landscape">افقی</option>
+<option value="unspecified">خودکار</option>
+</select>
+
+<label>دسترسی اینترنت</label>
+<select id="internet">
+<option value="yes">فعال</option>
+<option value="no">غیرفعال</option>
+</select>
+
+<button class="secondary" style="width:100%;margin-top:18px"
+id="saveSettings">ذخیره تنظیمات در همین صفحه</button>
+<div class="status" id="settingsStatus"></div>
+</section>
+
+</div>
+
+<section class="card">
+<h2>🚀 مرکز ساخت APK</h2>
+<p class="help">
+ابتدا فایل HTML و تنظیمات پروژه را آماده کن. سپس باید سرویس ساخت اندروید
+به این برنامه متصل شود تا APK واقعی ساخته و قابل دانلود باشد.
+</p>
+
+<div class="project">
+  <div class="project-icon">🛠️</div>
+  <div class="project-info">
+    <strong>Android Build Service</strong>
+    <small>سرویس ساخت هنوز به این رابط متصل نشده است.</small>
+  </div>
+  <span class="tag">نیازمند راه‌اندازی</span>
+</div>
+
+<button class="primary" id="buildButton">📦 بررسی آمادگی ساخت APK</button>
+<div class="status" id="buildStatus"></div>
+</section>
+
+<section class="card">
+<h2>🗂️ پروژه‌های ثبت‌شده</h2>
+<div id="projectList">
+<p class="help">هنوز پروژه‌ای ثبت نکرده‌ای.</p>
+</div>
+</section>
+
+<footer>
+  <b>HTML APK STUDIO</b><br>
+  ابزار مدیریت و آماده‌سازی پروژه‌های HTML برای اندروید
+</footer>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let selectedHTML = null;
+let selectedIcon = null;
+let projects = [];
+
+function message(id, text) {
+  const el = $(id);
+  el.textContent = text;
+  el.style.display = "block";
+}
+
+function validPackage(value) {
+  return /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(value);
+}
+
+$("htmlFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 10 * 1024 * 1024) {
+    message("saveStatus", "حجم فایل بیشتر از ۱۰ مگابایت است.");
+    event.target.value = "";
+    return;
+  }
+
+  selectedHTML = file;
+  $("fileState").textContent = "انتخاب شد";
+  message("saveStatus", "فایل " + file.name + " انتخاب شد.");
+});
+
+$("iconFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    message("saveStatus", "حجم آیکون باید کمتر از ۲ مگابایت باشد.");
+    event.target.value = "";
+    return;
+  }
+
+  selectedIcon = file;
+  const url = URL.createObjectURL(file);
+  $("iconPreview").innerHTML = "";
+  const img = document.createElement("img");
+  img.src = url;
+  $("iconPreview").appendChild(img);
+});
+
+$("projectName").addEventListener("input", () => {
+  if (!$("appName").dataset.changed) {
+    $("appName").value = $("projectName").value;
+  }
+});
+
+$("appName").addEventListener("input", () => {
+  $("appName").dataset.changed = "1";
+});
+
+$("saveProject").addEventListener("click", () => {
+  const name = $("projectName").value.trim();
+
+  if (!name) {
+    message("saveStatus", "لطفاً نام پروژه را وارد کن.");
+    return;
+  }
+
+  if (!selectedHTML) {
+    message("saveStatus", "ابتدا فایل HTML پروژه را انتخاب کن.");
+    return;
+  }
+
+  projects.push({
+    name,
+    file: selectedHTML.name,
+    size: selectedHTML.size,
+    appName: $("appName").value.trim(),
+    packageId: $("packageId").value.trim(),
+    version: $("version").value.trim()
+  });
+
+  $("projectCount").textContent = projects.length;
+  renderProjects();
+  message("saveStatus", "پروژه در فهرست همین صفحه ثبت شد.");
+});
+
+function renderProjects() {
+  const list = $("projectList");
+  list.innerHTML = "";
+
+  projects.forEach((project, index) => {
+    const row = document.createElement("div");
+    row.className = "project";
+
+    const icon = document.createElement("div");
+    icon.className = "project-icon";
+    icon.textContent = "🌐";
+
+    const info = document.createElement("div");
+    info.className = "project-info";
+
+    const title = document.createElement("strong");
+    title.textContent = project.name;
+
+    const detail = document.createElement("small");
+    detail.textContent = project.file + " • " +
+      (project.size / 1024).toFixed(1) + " KB";
+
+    info.append(title, detail);
+
+    const remove = document.createElement("button");
+    remove.className = "secondary";
+    remove.textContent = "حذف";
+    remove.addEventListener("click", () => {
+      projects.splice(index, 1);
+      $("projectCount").textContent = projects.length;
+      renderProjects();
+    });
+
+    row.append(icon, info, remove);
+    list.appendChild(row);
+  });
+}
+
+$("saveSettings").addEventListener("click", () => {
+  const pkg = $("packageId").value.trim();
+  const version = $("version").value.trim();
+
+  if (!validPackage(pkg)) {
+    message("settingsStatus",
+      "شناسه بسته معتبر نیست؛ مثلاً com.example.myapp وارد کن.");
+    return;
+  }
+
+  if (!/^\d+\.\d+\.\d+$/.test(version)) {
+    message("settingsStatus", "نسخه را مانند 1.0.0 وارد کن.");
+    return;
+  }
+
+  message("settingsStatus",
+    "تنظیمات بررسی شد. برای ماندگاری پس از بستن صفحه، ذخیره‌سازی دائمی باید اضافه شود.");
+});
+
+$("buildButton").addEventListener("click", () => {
+  if (!selectedHTML) {
+    message("buildStatus", "ابتدا فایل HTML را انتخاب کن.");
+    return;
+  }
+
+  if (!validPackage($("packageId").value.trim())) {
+    message("buildStatus", "ابتدا شناسه بسته معتبر وارد کن.");
+    return;
+  }
+
+  $("buildState").textContent = "نیازمند اتصال";
+
+  message("buildStatus",
+    "فایل انتخاب شده و تنظیمات اولیه بررسی شدند. ساخت APK هنوز فعال نیست؛ باید سرویس ساخت اندروید و ارسال فایل پروژه به آن را راه‌اندازی کنیم. این مرحله به‌تنهایی APK تولید نمی‌کند.");
+});
+</script>
+</body>
+  </html>
