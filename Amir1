@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بازپرس | بازی معمایی جنایی</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e0e0e0;
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    header {
+      background: rgba(0,0,0,0.4);
+      border-bottom: 2px solid #c9a227;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; color: #c9a227; }
+    .stats { display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9rem; }
+    .stat-item {
+      background: rgba(201, 162, 39, 0.15);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(201, 162, 39, 0.3);
+    }
+    .stat-item span { color: #c9a227; font-weight: 600; }
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.35s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1, h2, h3 { color: #c9a227; margin-bottom: 12px; }
+    .box {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(201, 162, 39, 0.4);
+      border-radius: 16px;
+      padding: 28px;
+      margin-top: 25px;
+    }
+    .box.center { text-align: center; }
+    .intro-text {
+      white-space: pre-line;
+      line-height: 2;
+      font-size: 1.05rem;
+      margin-bottom: 25px;
+      text-align: justify;
+    }
+    .btn {
+      background: linear-gradient(135deg, #c9a227, #a67c00);
+      color: #1a1a2e;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 30px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(201,162,39,0.35); }
+    .btn:active { transform: translateY(0); }
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid #c9a227;
+      color: #c9a227;
+    }
+    .btn-secondary:hover { background: rgba(201,162,39,0.12); }
+    .btn-danger {
+      background: linear-gradient(135deg, #c0392b, #922b21);
+      color: #fff;
+    }
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 18px;
+      margin-top: 20px;
+    }
+    .case-card {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 14px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+    }
+    .case-card:hover {
+      border-color: #c9a227;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .case-card.solved { border-color: #27ae60; opacity: 0.7; }
+    .diff {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .diff-easy { background: #27ae60; color: #fff; }
+    .diff-medium { background: #f39c12; color: #1a1a2e; }
+    .diff-hard { background: #c0392b; color: #fff; }
+    .case-title { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    .case-price { color: #c9a227; font-weight: 600; margin: 8px 0; }
+    .case-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 0.72rem;
+      background: rgba(0,0,0,0.65);
+      padding: 2px 8px;
+      border-radius: 8px;
+    }
+    .timer { font-size: 0.8rem; color: #f39c12; margin-top: 6px; }
+    .timer.urgent { color: #e74c3c; font-weight: 600; }
+    .case-detail {
+      background: rgba(0,0,0,0.4);
+      border-radius: 16px;
+      padding: 22px;
+      margin-top: 15px;
+      border: 1px solid rgba(201,162,39,0.25);
+    }
+    .tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+    .tab {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid transparent;
+      color: #ccc;
+      padding: 7px 16px;
+      border-radius: 18px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.88rem;
+    }
+    .tab.active {
+      background: rgba(201,162,39,0.2);
+      border-color: #c9a227;
+      color: #c9a227;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .story-text {
+      background: rgba(0,0,0,0.3);
+      padding: 16px;
+      border-radius: 12px;
+      border-right: 4px solid #c9a227;
+      white-space: pre-line;
+    }
+    .suspects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .suspect-card {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .suspect-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4a4a6a, #2a2a4a);
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      border: 3px solid #c9a227;
+    }
+    .suspect-name { font-weight: 600; }
+    .suspect-role { font-size: 0.82rem; opacity: 0.7; margin-top: 2px; }
+    .dialogue-box {
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .dialogue-text { margin-bottom: 12px; font-style: italic; }
+    #dialogue-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      align-items: stretch;
+    }
+    .option-btn {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(201,162,39,0.3);
+      color: #e0e0e0;
+      padding: 11px 14px;
+      border-radius: 10px;
+      text-align: right;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.92rem;
+      width: 100%;
+      margin-bottom: 0;
+      display: block;
+      min-height: 54px;
+    }
+    @media (max-width: 480px) {
+      #dialogue-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+      .option-btn { font-size: .82rem; padding: 10px 8px; }
+    }
+    .option-btn:hover {
+      background: rgba(201,162,39,0.15);
+      border-color: #c9a227;
+    }
+    .clue-item {
+      background: rgba(39,174,96,0.1);
+      border: 1px solid rgba(39,174,96,0.3);
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 8px;
+    }
+    .clue-item::before { content: "🔍 "; }
+    .result-box {
+      text-align: center;
+      padding: 35px 20px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 16px;
+      margin-top: 25px;
+    }
+    .result-box.success { border: 2px solid #27ae60; }
+    .result-box.fail { border: 2px solid #c0392b; }
+    .creator {
+      text-align: center;
+      padding: 18px;
+      opacity: 0.7;
+      font-size: 0.88rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin-top: 35px;
+    }
+    .hidden { display: none !important; }
+    .alert-box {
+      background: rgba(192,57,43,0.2);
+      border: 1px solid #c0392b;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 0.92rem;
+    }
+    @media (max-width: 600px) {
+      .stats { gap: 8px; font-size: 0.82rem; }
+      .logo { font-size: 1.2rem; }
+      .cases-grid { grid-template-columns: 1fr; }
+    }
+
+    /* افزونه رابط کاربری نسخه ارتقایافته */
+    body { background: radial-gradient(ellipse at top, #20202d 0%, #09090d 55%, #130b12 100%); }
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.22; background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.025) 4px 5px), radial-gradient(circle at 80% 20%, #54252d, transparent 38%); }
+    .top-nav { position:fixed; left:0; right:0; bottom:0; z-index:5000; display:flex; flex-wrap:nowrap; gap:6px; justify-content:space-around; align-items:stretch; padding:9px max(8px, env(safe-area-inset-right)) calc(9px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background:rgba(9,9,13,.97); border-top:1px solid #8b4a56; box-shadow:0 -8px 28px #0009; backdrop-filter:blur(12px); }
+    .top-nav button { flex:1 1 0; min-width:0; border:1px solid #624047; border-radius:12px; color:#eee; background:#1a171d; padding:9px 4px; font:inherit; font-size:.88rem; line-height:1.25; cursor:pointer; }
+    .top-nav button:hover, .top-nav button:focus-visible { border-color:#b88b42; background:#2b2024; }
+    body { padding-bottom:100px; }
+    .container { padding-bottom:24px; }
+    .feature-panel { background:linear-gradient(145deg,rgba(25,25,34,.97),rgba(35,13,20,.96)); border:1px solid #5a343d; border-radius:16px; padding:22px; margin:18px 0; box-shadow:0 12px 32px #0008; }
+    .premium-card { border:1px solid #c9a227; background:linear-gradient(145deg,#1c1b20,#33250d); }
+    .green-btn { background:linear-gradient(135deg,#239b56,#176536); color:white; }
+    .red-btn { background:linear-gradient(135deg,#d64545,#8e2020); color:white; }
+    .chat-line { padding:10px 13px; margin:9px 0; border-radius:12px; max-width:92%; background:#25252f; border-right:3px solid #a98b4b; white-space:pre-wrap; }
+    .chat-line.question { margin-right:auto; background:#153326; border-color:#36a269; }
+    .chat-line.answer { margin-left:auto; background:#2b2028; border-color:#b56b7d; }
+    .interrogation-room { padding:15px; border-radius:14px; background:linear-gradient(rgba(5,5,9,.83),rgba(5,5,9,.94)), radial-gradient(ellipse at 50% 0%,#554d49,#141319 65%); border:1px solid #62514a; box-shadow:inset 0 0 45px #000; }
+    .avatar-choice { display:inline-flex; width:58px;height:58px; align-items:center;justify-content:center; font-size:30px; border:2px solid #63545a;border-radius:50%;margin:7px;cursor:pointer;background:#211d24; }
+    .avatar-choice.selected { border-color:#3bb86a; box-shadow:0 0 0 3px #3bb86a33; }
+    .field { display:block;width:100%;padding:12px;margin:8px 0 14px;border-radius:10px;border:1px solid #5c5057;background:#100f15;color:#fff;font:inherit; }
+    .fine-print { font-size:.84rem;opacity:.78;line-height:1.8; }
+    .case-card { background:linear-gradient(145deg,rgba(17,17,24,.96),rgba(40,19,28,.9)); border-color:#49333a; }
+    #onboarding { position:fixed; inset:0; z-index:9999; overflow:auto; background:radial-gradient(ellipse at top,#29202c,#07070a 70%); padding:18px; display:flex; align-items:center; justify-content:center; }
+    #onboarding .box { width:min(560px,100%); margin:12px auto; }
+    @media(max-width:600px){ .top-nav{gap:4px;padding:7px 5px calc(7px + env(safe-area-inset-bottom));}.top-nav button{font-size:.70rem;padding:8px 2px;border-radius:9px;overflow-wrap:anywhere}.feature-panel{padding:16px} body{padding-bottom:92px;} }
+    @media(min-width:601px){ .top-nav{left:50%;right:auto;transform:translateX(-50%);width:min(100%,900px);border:1px solid #8b4a56;border-bottom:0;border-radius:16px 16px 0 0;} }
+
+  </style>
+</head>
+<body>
+
+  <div id="onboarding">
+    <div class="box center">
+      <h1>🕯️ بازپرس | پرونده‌های تاریک</h1>
+      <p class="fine-print">برای ورود، آواتار و نام خود را انتخاب کنید.</p>
+      <div id="login-step-profile">
+        <h3>انتخاب آواتار</h3><div id="avatar-options"><button class="avatar-choice selected" data-avatar="🕵️">🕵️</button><button class="avatar-choice" data-avatar="🦉">🦉</button><button class="avatar-choice" data-avatar="🦊">🦊</button><button class="avatar-choice" data-avatar="🐺">🐺</button></div>
+        <label>نام</label><input id="profile-first" class="field" maxlength="30" placeholder="نام">
+        <label>نام خانوادگی</label><input id="profile-last" class="field" maxlength="40" placeholder="نام خانوادگی">
+        <button class="btn" id="enter-game">ورود به بازی 🗝️</button>
+      </div>
+      <p id="login-error" style="color:#ff7777;margin-top:10px"></p>
+    </div>
+  </div>
+
+  <header>
+    <div class="logo">🕵️ بازپرس</div>
+    <div class="stats">
+      <div class="stat-item">💰 <span id="money">۸۰۰٬۰۰۰</span> تومان</div>
+      <div class="stat-item">🏅 <span id="rank">مبتدی</span></div>
+      <div class="stat-item">📁 <span id="solved">۰</span></div>
+    </div>
+  </header>
+
+
+  <nav class="top-nav" id="main-nav">
+    <button data-view="cases-screen">📂 پرونده‌ها</button><button data-view="leaderboard-panel">🏆 رتبه‌ها و کاپ‌ها</button><button data-view="profile-panel">👤 پروفایل</button>
+  </nav>
+
+  <div class="container">
+<div id="cases-screen" class="screen">
+      <h2>📂 پرونده‌های موجود</h2>
+      <p style="opacity:0.8; margin-bottom:8px;">روی هر پرونده کلیک کن تا جزئیاتش رو ببینی و خریداری کنی.</p>
+      <p style="opacity:0.7; font-size:0.88rem; margin-bottom:10px;">⚠️ بعد از خرید، ۲۴ ساعت فرصت داری پرونده رو حل کنی. در غیر این صورت پرونده بسته می‌شه و پولت برنمی‌گرده.</p>
+      <div id="expired-alert" class="alert-box hidden"></div>
+      <div class="cases-grid" id="cases-list"></div>
+    </div>
+
+    <div id="case-detail-screen" class="screen">
+      <button class="btn btn-secondary" id="btn-back-cases" style="margin-bottom:12px;">← بازگشت به لیست</button>
+      <div class="case-detail">
+        <h2 id="detail-title"></h2>
+        <div id="detail-meta" style="margin-bottom:12px;"></div>
+        <div id="detail-timer" class="timer" style="margin-bottom:12px;"></div>
+        <div class="tabs">
+          <button class="tab active" data-tab="story">📖 داستان</button>
+          <button class="tab" data-tab="suspects">👥 مظنون‌ها</button>
+          <button class="tab" data-tab="talk">💬 صحبت</button>
+          <button class="tab" data-tab="clues">🔍 سرنخ‌ها</button>
+          <button class="tab" data-tab="accuse">⚖️ متهم کردن</button>
+        </div>
+        <div id="tab-story" class="tab-content active">
+          <div class="story-text" id="story-content"></div>
+        </div>
+        <div id="tab-suspects" class="tab-content">
+          <div class="suspects-grid" id="suspects-list"></div>
+        </div>
+        <div id="tab-talk" class="tab-content">
+          <p style="margin-bottom:10px;">با کدوم مظنون می‌خوای حرف بزنی؟</p>
+          <div id="talk-suspects" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
+          <div id="dialogue-area" class="dialogue-box hidden interrogation-room">
+            <div class="dialogue-text" id="dialogue-text"></div>
+            <div id="dialogue-options"></div>
+          </div>
+        </div>
+        <div id="tab-clues" class="tab-content">
+          <div id="clues-list">
+            <p style="opacity:0.7;">هنوز سرنخی پیدا نکردی. با مظنون‌ها صحبت کن!</p>
+          </div>
+        </div>
+        <div id="tab-accuse" class="tab-content">
+          <h3>کی رو متهم می‌کنی؟</h3>
+          <p style="opacity:0.8; margin-bottom:12px;">اگر درست حدس بزنی پاداش می‌گیری. اگر اشتباه کنی بخشی از پولت کم می‌شه.</p>
+          <div id="accuse-options" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-screen" class="screen">
+      <div id="result-box" class="result-box">
+        <h2 id="result-title"></h2>
+        <p id="result-message" style="margin:18px 0; font-size:1.05rem;"></p>
+        <p id="result-reward" style="color:#c9a227; font-weight:600; margin-bottom:22px;"></p>
+        <button class="btn" id="btn-back-from-result">بازگشت به دفتر</button>
+      </div>
+    </div>
+
+
+    <section id="leaderboard-panel" class="screen"><div class="feature-panel"><h2>🏆 پنج بازپرس برتر</h2><p class="fine-print">رتبه‌بندی آنلاین واقعی به سرور مشترک نیاز دارد؛ این جدول در نسخه محلی نمایشی است.</p><div id="leaderboard-list"></div><p>رتبه شما: <b id="my-rank">مبتدی</b> | کاپ‌های شما: <b id="my-cups">۰</b></p></div></section>
+    <section id="profile-panel" class="screen"><div class="feature-panel"><h2>👤 پروفایل بازپرس</h2><div id="profile-summary"></div><p class="fine-print">طبق قوانین بازی، نام و آواتار هرکدام فقط یک بار قابل تغییرند.</p><label>نام جدید (یک بار)</label><input id="rename-input" class="field" maxlength="60"><button id="rename-btn" class="btn">تغییر نام</button><hr style="margin:20px 0;border-color:#44343b"><label>انتخاب آواتار جدید (یک بار)</label><div id="profile-avatar-options"><button class="avatar-choice" data-avatar="🕵️">🕵️</button><button class="avatar-choice" data-avatar="🦉">🦉</button><button class="avatar-choice" data-avatar="🦊">🦊</button><button class="avatar-choice" data-avatar="🐺">🐺</button></div><button id="change-avatar-btn" class="btn">تغییر آواتار</button></div></section>
+<div class="creator">
+      تولیدکننده و توسعه‌دهنده: امیر علی علیزاده
+    </div>
+  </div>
+
+  <script>
+const ranks = [
+      { name: "مبتدی", minSolved: 0 },
+      { name: "کارآگاه", minSolved: 3 },
+      { name: "بازپرس ارشد", minSolved: 7 },
+      { name: "بازرس ویژه", minSolved: 12 },
+      { name: "افسانه پلیس", minSolved: 16 }
+    ];
+
+    const cases = [
+      {id:1,title:"قتل در ویلای شمال",difficulty:"easy",price:800000,reward:1500000,story:"ساعت ۲ بامداد، صدای تیراندازی از ویلای آقای «بهرام نوری» در شمال به گوش رسید.\nهمسایه‌ها پلیس را خبر کردند. وقتی مأموران رسیدند، بهرام نوری را با گلوله در سینه، روی زمین اتاق پذیرایی پیدا کردند.\nدر خانه سه نفر دیگر هم بودند: همسرش، برادرش و باغبان.\nسلاح جرم پیدا نشد. فقط یک دستمال ابریشمی خونی کنار جسد بود.",suspects:[{id:"a",name:"مریم نوری",role:"همسر مقتول",emoji:"👩",dialogue:[{q:"شب حادثه کجا بودی؟",a:"تو اتاق خوابم بودم. صدای تیر رو شنیدم و دویدم پایین. شوهرم رو روی زمین دیدم..."},{q:"رابطه‌تون چطور بود؟",a:"اخیراً کمی سرد شده بودیم. ولی من عاشقش بودم! چرا باید بکشمش؟"},{q:"این دستمال مال کیه؟",a:"این... مال منه. ولی من خون‌آلودش نکردم! شاید قاتل ازش استفاده کرده."}]},{id:"b",name:"کامران نوری",role:"برادر مقتول",emoji:"👨",dialogue:[{q:"شب حادثه کجا بودی؟",a:"تو اتاق مهمان بودم. داشتم کتاب می‌خوندم. صدای تیر رو شنیدم و اومدم پایین."},{q:"با برادرت مشکل داشتی؟",a:"چند سال پیش سر ارث دعوا کردیم، ولی حل شد. من که قاتل نیستم!"},{q:"سلاح رو دیدی؟",a:"نه. فقط وقتی رسیدم، مریم داشت گریه می‌کرد و جسد رو بغل کرده بود."}]},{id:"c",name:"حسین باغبان",role:"باغبان ویلا",emoji:"🧑‍🌾",dialogue:[{q:"شب حادثه کجا بودی؟",a:"تو کلبه خودم تو باغ بودم. صدای تیر رو شنیدم ولی اول فکر کردم صدای ماشین بوده."},{q:"با آقای نوری مشکل داشتی؟",a:"نه قربان. حقوق خوبی می‌داد. فقط... چند روز پیش دیدم که با یه مرد غریبه دعوا می‌کرد."},{q:"چیزی مشکوک دیدی؟",a:"صبح روز بعد یه گلوله خالی تو باغ پیدا کردم. به پلیس نشون دادم."}]}],correct:"a",solution:"مریم نوری قاتل بود. دستمال ابریشمی مال او بود و اثر انگشتش روی اسلحه (که بعداً تو باغ پیدا شد) بود. انگیزه: شوهرش می‌خواست طلاقش بده و ارث زیادی بهش نرسه."},
+      {id:2,title:"سرقت جواهرات موزه",difficulty:"easy",price:800000,reward:1400000,story:"شب گذشته از موزه هنرهای معاصر تهران، مجموعه جواهرات سلطنتی به سرقت رفت.\nدوربین‌های مداربسته ساعت ۲:۱۵ قطع شدند. نگهبان صبح جسد یکی از همکارانش رو پیدا کرد که با ضربه به سر کشته شده بود.\nسه نفر مشکوک هستند: نگهبان شب، مرمت‌کار موزه و یکی از بازدیدکنندگان VIP روز قبل.",suspects:[{id:"a",name:"رضا نگهبان",role:"نگهبان شب",emoji:"👮",dialogue:[{q:"ساعت ۲ کجا بودی؟",a:"دوربین‌ها قطع شد و رفتم اتاق کنترل رو چک کنم. وقتی برگشتم، همکارم رو مرده پیدا کردم."},{q:"کلید گاوصندوق پیش کی بود؟",a:"پیش من و مدیر موزه. من کلید رو همیشه تو جیبم دارم."},{q:"با همکارت مشکلی داشتی؟",a:"نه. آدم خوبی بود. فقط اخیراً خیلی عصبی شده بود."}]},{id:"b",name:"سارا مرمت‌کار",role:"مرمت‌کار موزه",emoji:"👩‍🎨",dialogue:[{q:"شب حادثه کجا بودی؟",a:"خونه بودم. می‌تونم با همسایه‌ها ثابت ک
